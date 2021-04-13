@@ -1,6 +1,7 @@
 'use strict';
 
 import * as post from './post.js';
+import * as audio from './audio.js';
 
 const elemChatContainer = document.getElementById('chat-container');
 
@@ -18,4 +19,10 @@ const addChat = (context, type) => {
 window.onload = () => {
   addChat('こんにちは', 'user');
   addChat('こんにちは', 'system');
+  const audioClass = new audio.Audio();
+  var constraints = {
+    video: false,
+    audio: true
+  }
+  audioClass.getStream(constraints);
 };
