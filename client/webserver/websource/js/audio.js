@@ -1,4 +1,5 @@
 'use strict';
+import * as post from './post.js';
 
 export class Audio {
   constructor() {
@@ -6,7 +7,6 @@ export class Audio {
     this.audioCtx = new audioContext();
     this.buffer = 2048;
     this.processor = this.audioCtx.createScriptProcessor(this.buffer, 2, 1);
-    this.processor.connect(this.audioCtx.destination);
     this.audioData = [];
   }
 
@@ -38,27 +38,49 @@ export class Audio {
   }
 
   startRec() {
-    socket.emit('start', '');
+    console.log('audio start rec');
     this.audioCtx.resume();
-    var input = this.audioCtx.createStreamSource(this.stream);
-    input.connect(this.processor);
+    this.input = this.audioCtx.createMediaStreamSource(this.stream);
+    this.processor.connect(this.audioCtx.destination);
+
+    this.input.connect(this.processor);
     this.processor.onaudioprocess = (audio) => {
-      putAudioData(audio)
+      this.putAudioData(audio);
     }
   }
 
   stopRec() {
-    socket.emit('stop', this.audioData);
+    // socket.emit('stop', this.audioData);
+    const returnAudioData = this.audioData;
+    this.audioData = [];
+    this.input.disconnect(this.processor);
+    this.processor.disconnect(this.audioCtx.destination);
+    return returnAudioData;
   }
 
   putAudioData(audio) {
     var input = audio.inputBuffer.getChannelData(0);
-    var bufferData = new Float32Array(buffer);
+    // var bufferData = this.convertoFloat32ToInt16(input)
 
-    for (var i = 0; i < buffer; i++) {
+    var bufferData = new Float32Array(this.buffer);
+
+    for (var i = 0; i < this.buffer; i++) {
       bufferData[i] = input[i];
     }
+    // console.log(bufferData)
     this.audioData.push(bufferData);
+  }
+
+  convertoFloat32ToInt16(buffer) {
+    var l = buffer.length;
+    var buf = new Int16Array(l/3); //<-----Only change here
+    
+    while (l--) {
+      if(l%3==0){
+        buf[l/3] = buffer[l]*0x7FFF;
+      }
+    }
+    return buf
   }
 
 }
