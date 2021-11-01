@@ -1,1 +1,5 @@
 .env
+espnet
+kaldi
+__pycache__
+models
