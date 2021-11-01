@@ -13,6 +13,9 @@ services:
         - FTP_PROXY=${FTP_PROXY}
         - ftp_proxy=${ftp_proxy}
 
+    environment: 
+      app_server : ${app_server}
+
     volumes:
       - ./webserver:/src
       - node_modules:/src/node_modules

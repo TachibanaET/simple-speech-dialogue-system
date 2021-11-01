@@ -3,3 +3,4 @@ espnet
 kaldi
 __pycache__
 models
+package-lock.json
